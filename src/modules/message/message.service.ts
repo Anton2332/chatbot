@@ -4,6 +4,8 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { PrismaService } from '@prisma';
 import { Message } from '@prisma/client';
 
+const unirest = require('unirest');
+
 @Injectable()
 export class MessageService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -26,7 +28,18 @@ export class MessageService {
     return [createdMessage]
   }
 
-  findAllByUsername(username: string) {
+  async findAllByUsername(username: string) {
+
+
+    const translated = await unirest.post("https://a1ca-2a02-2f07-7207-b800-d54b-3fd2-2153-45e3.ngrok-free.app/translate").headers({
+    "Content-Type": "application/json"
+  }).send({
+    message:"Hello, world and Python",
+    language:"uk"
+  })
+
+  console.log(translated.body);
+
     return this.prismaService.message.findMany({where: { user: { username}}});
   }
 
