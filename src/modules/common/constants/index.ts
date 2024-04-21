@@ -6,3 +6,14 @@ export const PASSWORD_MATCH = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]
 export const BASE64_MATCH = /^data:([A-Za-z-+/]+);base64,(.+)$/;
 
 export const GUID_MATCH = /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b$/;
+
+export const HEADERS = {
+  "Content-Type": "application/json"
+};
+
+export const DEFAULT_MESSAGE = "Hi! How was your day?";
+
+export enum CHAT_ROLE {
+  ASSISTANT = 'assistant',
+  USER = 'user'
+}
