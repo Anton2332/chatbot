@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PrismaService } from '@prisma';
+import { Message } from '@prisma/client';
 
 @Injectable()
 export class MessageService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(createMessageDto: CreateMessageDto) {
-    return this.prismaService.message.create({data: {
+  async create(createMessageDto: CreateMessageDto): Promise<Message[]> {
+    const createdMessage = await this.prismaService.message.create({data: {
       text: createMessageDto.text,
       user: {
         connectOrCreate : {
@@ -21,6 +22,8 @@ export class MessageService {
         }
       }
     }})
+
+    return [createdMessage]
   }
 
   findAllByUsername(username: string) {
