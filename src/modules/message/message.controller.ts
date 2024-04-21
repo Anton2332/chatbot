@@ -8,9 +8,19 @@ import { UsernameDto } from './dto/username.dto';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
+  @Get("translation/:id")
+  getTranslationMessage(@Param('id') id: string) {
+    return this.messageService.getTranslateMessage(id);
+  }
+
+  @Get('correct/:id')
+  getCorrectMessage(@Param('id') id: string) {
+    return this.messageService.getCorrectMessage(id);
+  }
+
   @Post()
   create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
+    return this.messageService.createMessageToConversation(createMessageDto);
   }
 
   @Get(':username')
