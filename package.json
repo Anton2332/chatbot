@@ -13,7 +13,8 @@
     "start": "yarn generate && yarn check:env && nest start",
     "dev": "yarn generate && NODE_ENV=dev yarn check:env && NODE_ENV=dev nest start --watch",
     "debug": "NODE_ENV=dev nest start --debug --watch",
-    "prod": "yarn generate && node dist/main"
+    "prod": "yarn generate && node dist/main",
+    "generate": "yarn prisma generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.454.0",
