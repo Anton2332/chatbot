@@ -29,3 +29,33 @@ model Message {
 
   @@map("message")
 }
+
+enum PresetType {
+  ACTUAL_TOPIC
+  PERSON
+  CONFLICT_SITUATION
+}
+
+enum EnglishLevelType {
+  A1
+  A2
+  B1
+  B2
+  C1
+}
+
+enum ConversationStyleType {
+  Buisness
+  Casual
+}
+
+model Presets {
+  id                String                @id @default(auto()) @map("_id") @db.ObjectId
+  type              PresetType
+  englishLevel      EnglishLevelType
+  conversetionStyle ConversationStyleType
+  title             String
+  prompt            String
+  createdAt         DateTime              @default(now()) @map("created_at")
+  imageUrl          String?               @map("image_url")
+}

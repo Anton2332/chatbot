@@ -33,7 +33,7 @@ export class MessageController {
 
   @Post()
   @ApiOkResponse({
-    description: 'Correct message response',
+    description: 'Created message response',
     type: MessageDto,
     isArray: true
   })

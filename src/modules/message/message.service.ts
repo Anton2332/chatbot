@@ -78,22 +78,12 @@ export class MessageService {
 
   async createMessageToConversation(createMessageDto: CreateMessageDto): Promise<Message[]> {
     const userMessages = await this.findAllByUsername(createMessageDto.username);
-    if (userMessages.length) {
       const messages = userMessages.map((it) => ({ role: it.isResponse ? CHAT_ROLE.ASSISTANT : CHAT_ROLE.USER, content: it.text }))
       messages.push({ role: CHAT_ROLE.USER, content: createMessageDto.text })
       const response = await this.getResponseMessage(messages);
       const userMessage = await this.create({ ...createMessageDto, isResponse: false });
       const responseMessage = await this.create({ username: createMessageDto.username, text: response, isResponse: true });
       return [userMessage, responseMessage];
-    }
-
-    const messages = [{ role: CHAT_ROLE.ASSISTANT, content: DEFAULT_MESSAGE }];
-    messages.push({ role: CHAT_ROLE.USER, content: createMessageDto.text });
-    const response = await this.getResponseMessage(messages);
-    const firstMessage = await this.create({ username: createMessageDto.username, text: DEFAULT_MESSAGE, isResponse: true });
-    const userMessage = await this.create({ ...createMessageDto, isResponse: false });
-    const responseMessage = await this.create({ username: createMessageDto.username, text: response, isResponse: true });
-    return [firstMessage, userMessage, responseMessage];
   }
 
   async create(createMessageDto: CreateMessageDto & { isResponse: boolean }): Promise<Message> {

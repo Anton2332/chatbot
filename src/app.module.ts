@@ -4,13 +4,15 @@ import { CommonModule } from './modules/common/common.module';
 import { PrismaModule } from './db/prisma.module';
 import { MessageModule } from './modules/message/message.module';
 import { UserModule } from './modules/user/user.module';
+import { PresetModule } from './modules/preset/preset.module';
 
 @Module({
   imports: [
     CommonModule,
     PrismaModule,
     MessageModule,
-    UserModule
+    UserModule,
+    PresetModule
   ]
 })
 export class AppModule {
