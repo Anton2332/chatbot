@@ -3,7 +3,7 @@ name: Stage BE workflow
 on:
   push:
     branches:
-      - staging
+      - main
 
 jobs:
   deploy:
