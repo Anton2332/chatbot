@@ -23,7 +23,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.use(bodyParser.json({ limit: '10mb' }));
   app.enableCors({ credentials: true, origin: [process.env.FRONTEND_URL] });
-
   app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
   app.use(
