@@ -14,7 +14,7 @@ const unirest = require('unirest');
 export class MessageService {
   private AIServiceUrl: string;
   constructor(private readonly prismaService: PrismaService, private readonly configService: ConfigService) {
-    this.AIServiceUrl = this.configService.getOrThrow("AI_SERVICE_URL");
+    this.AIServiceUrl = this.configService.get("AI_SERVICE_URL") ?? 'https://fsh-services-1051463fdac7.herokuapp.com/';
   }
 
   async translateRequest(text: string) {
