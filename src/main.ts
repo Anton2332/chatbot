@@ -19,7 +19,6 @@ async function bootstrap() {
     .addTag('nest')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' }, 'JWT')
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   app.use(bodyParser.json({ limit: '10mb' }));
