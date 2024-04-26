@@ -19,9 +19,9 @@ jobs:
       - name: Build and push
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:push -a verona-api web --arg NODE_ENV=staging
+        run: heroku container:push -a chatbot-app-221 web --arg NODE_ENV=staging
 
       - name: Release
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:release -a verona-api web
+        run: heroku container:release -a chatbot-app-221 web
