@@ -34,7 +34,7 @@ async function bootstrap() {
         secure: process.env.NODE_ENV !== 'dev',
         sameSite: 'lax'
       },
-      secret: process.env.SECRET_COOKIE,
+      secret: process.env.SECRET_COOKIE ?? 'secret',
       resave: false,
       saveUninitialized: false
     })
