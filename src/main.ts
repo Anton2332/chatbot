@@ -22,7 +22,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   app.use(bodyParser.json({ limit: '10mb' }));
-  app.enableCors({ credentials: true, origin: [process.env.FRONTEND_URL ?? 'https://ed-talk-a10ca.web.app/'] });
+  app.enableCors({ credentials: true, origin: [process.env.FRONTEND_URL ?? 'https://ed-talk-a10ca.web.app/', 'http://localhost:3000/'] });
 
   app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
