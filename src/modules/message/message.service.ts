@@ -68,8 +68,8 @@ export class MessageService {
     return { id, ...corrected };
   }
 
-  async getResponseMessage(messages: {role: CHAT_ROLE, content: string }[]) {
-    const corrected = await unirest.post(this.AIServiceUrl + "chat_correct").headers(HEADERS).send({ messages: messages });
+  async getResponseMessage(messages: {role: CHAT_ROLE, content: string }[], presetName?: string) {
+    const corrected = await unirest.post(this.AIServiceUrl + "chat_correct").headers(HEADERS).send({ name: presetName, messages: messages });
     if (corrected.code !== 200) {
       console.log(corrected.body);
       throw new HttpException("The server responded with incorrect status code", 500);
@@ -100,7 +100,10 @@ export class MessageService {
     const userMessages = await this.findAllByUsername(createMessageDto.username);
       const messages = userMessages.map((it) => ({ role: it.isResponse ? CHAT_ROLE.ASSISTANT : CHAT_ROLE.USER, content: it.text }))
       messages.push({ role: CHAT_ROLE.USER, content: createMessageDto.text })
-      const result = await this.getResponseMessage(messages);
+      const preset = await this.prismaService.presets.findFirst({ where: {
+        id: createMessageDto.presetId
+      }})
+      const result = await this.getResponseMessage(messages, preset?.nameForAiService);
       const userMessage = await this.create({ ...createMessageDto, correct: result.corrected, explanation: result.explanation, rating: result.rating, isResponse: false });
       const responseMessage = await this.create({ username: createMessageDto.username, text: result.responce, isResponse: true });
       return [userMessage, responseMessage];
