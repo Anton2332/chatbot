@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -32,7 +32,7 @@ export class MessageController {
   }
 
 
-  @Get('summary/:username')
+  @Get('summary/:username/:presetId')
   @ApiOkResponse({
     description: 'Summary message response',
     type: MessageDto,
@@ -53,14 +53,14 @@ export class MessageController {
   }
 
   @Delete('end-chat')
-  async endChat(@Param() dto: UsernameDto) {
+  async endChat(@Query() dto: UsernameDto) {
     await this.messageService.removeAllMessages(dto.username, dto.presetId);
     return {
       message: "Chat deleted successfully"
     };
   }
 
-  @Get(':username')
+  @Get(':username/:presetId')
   @ApiOkResponse({
     description: 'Correct message response',
     type: MessageDto,

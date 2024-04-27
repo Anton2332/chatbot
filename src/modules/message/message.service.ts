@@ -78,8 +78,9 @@ export class MessageService {
   }
 
   async getSummaryMessage({ messages }: {messages: string[] }) {
-    const corrected = await unirest.post(this.AIServiceUrl + "summary").headers(HEADERS).send({ messages: messages });
+    const corrected = await unirest.post(this.AIServiceUrl + "summarize").headers(HEADERS).send({ messages: messages });
     if (corrected.code !== 200) {
+      console.log(corrected.body);
       throw new HttpException("The server responded with incorrect status code", 500);
     }
     return corrected.body;
@@ -105,12 +106,12 @@ export class MessageService {
       }})
       const result = await this.getResponseMessage(messages, preset?.nameForAiService);
       const userMessage = await this.create({ ...createMessageDto, correct: result.corrected, explanation: result.explanation, rating: result.rating, isResponse: false });
-      const responseMessage = await this.create({ username: createMessageDto.username, text: result.responce, isResponse: true });
+      const responseMessage = await this.create({ username: createMessageDto.username, text: result.responce, isResponse: true, presetId: createMessageDto.presetId });
       return [userMessage, responseMessage];
   }
 
   async create(createMessageDto: CreateMessageDto & { isResponse: boolean }): Promise<Message> {
-    const { presetId, ...rest} = createMessageDto;
+    const { presetId, username, ...rest} = createMessageDto;
     return this.prismaService.message.create({data: {
       ...rest,
       ...(createMessageDto.presetId && { preset: { connect: { id: createMessageDto.presetId } } }),

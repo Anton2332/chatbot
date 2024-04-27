@@ -16,13 +16,13 @@ export class CreatePresetDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsEnum(PresetType)
+  @IsEnum(EnglishLevelType)
   englishLevel:   EnglishLevelType
 
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsEnum(PresetType)
+  @IsEnum(ConversationStyleType)
   conversetionStyle: ConversationStyleType
 
   @ApiProperty()
