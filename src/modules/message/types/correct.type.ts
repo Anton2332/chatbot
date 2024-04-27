@@ -28,6 +28,8 @@ export class MessageDto {
   @ApiProperty()
   isResponse: boolean;
   @ApiProperty()
+  isSummary: boolean;
+  @ApiProperty()
   text: string;
   @ApiProperty()
   createdAt: Date;
@@ -39,4 +41,7 @@ export class MessageDto {
   translation: string;
   @ApiProperty()
   userId: string;
+
+  @ApiPropertyOptional()
+  presetId: string;
 }

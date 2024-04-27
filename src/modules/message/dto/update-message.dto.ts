@@ -7,9 +7,4 @@ export class UpdateMessageDto extends PartialType(CreateMessageDto) {
   @IsString()
   @ApiPropertyOptional()
   translation?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiPropertyOptional()
-  correct?: string;
 }

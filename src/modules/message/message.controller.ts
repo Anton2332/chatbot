@@ -31,6 +31,17 @@ export class MessageController {
     return this.messageService.getCorrectMessage(id);
   }
 
+
+  @Get('summary/:username')
+  @ApiOkResponse({
+    description: 'Summary message response',
+    type: MessageDto,
+    isArray: true
+  })
+  getSummary(@Param() dto: UsernameDto): Promise<MessageDto[]>  {
+    return this.messageService.createSummaryMessage({ username: dto.username, presetId: dto.presetId });
+  }
+
   @Post()
   @ApiOkResponse({
     description: 'Created message response',
@@ -41,6 +52,14 @@ export class MessageController {
     return this.messageService.createMessageToConversation(createMessageDto);
   }
 
+  @Delete('end-chat')
+  async endChat(@Param() dto: UsernameDto) {
+    await this.messageService.removeAllMessages(dto.username, dto.presetId);
+    return {
+      message: "Chat deleted successfully"
+    };
+  }
+
   @Get(':username')
   @ApiOkResponse({
     description: 'Correct message response',
@@ -48,7 +67,7 @@ export class MessageController {
     isArray: true
   })
   findAllByUsername(@Param() param: UsernameDto): Promise<Message[]> {
-    return this.messageService.findAllByUsername(param.username);
+    return this.messageService.findAllByUsername(param.username, param.presetId);
   }
 
   @Patch(':messageId')

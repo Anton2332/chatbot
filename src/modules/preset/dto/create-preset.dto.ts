@@ -28,7 +28,7 @@ export class CreatePresetDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  prompt:    string;
+  nameForAiService:    string;
 
   // @ApiPropertyOptional()
   // @IsOptional()

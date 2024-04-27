@@ -18,11 +18,16 @@ model User {
 model Message {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   isResponse  Boolean  @default(false) @map("is_response")
+  isSummary   Boolean  @default(false) @map("is_summary")
   text        String
   createdAt   DateTime @default(now()) @map("created_at")
+  rating      Int?
   correct     String?
   explanation String?
   translation String?
+
+  presetId String?  @map("preset_id") @db.ObjectId
+  preset   Presets? @relation(fields: [presetId], references: [id])
 
   userId String @map("user_id") @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
@@ -54,8 +59,9 @@ model Presets {
   type              PresetType
   englishLevel      EnglishLevelType
   conversetionStyle ConversationStyleType
+  nameForAiService  String                @map("name_for_ai_service")
   title             String
-  prompt            String
   createdAt         DateTime              @default(now()) @map("created_at")
   imageUrl          String?               @map("image_url")
+  Message           Message[]
 }

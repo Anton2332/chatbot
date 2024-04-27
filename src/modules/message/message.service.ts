@@ -64,30 +64,53 @@ export class MessageService {
       };
     }
     const corrected = await this.correctRequest(findMessage.text);
-    await this.update(findMessage.id, { correct: corrected.corrected });
+    await this.update(findMessage.id, { correct: corrected.corrected, explanation: corrected.explanation });
     return { id, ...corrected };
   }
 
   async getResponseMessage(messages: {role: CHAT_ROLE, content: string }[]) {
-    const corrected = await unirest.post(this.AIServiceUrl + "chat").headers(HEADERS).send({ messages: messages });
+    const corrected = await unirest.post(this.AIServiceUrl + "chat_correct").headers(HEADERS).send({ messages: messages });
+    if (corrected.code !== 200) {
+      console.log(corrected.body);
+      throw new HttpException("The server responded with incorrect status code", 500);
+    }
+    return corrected.body;
+  }
+
+  async getSummaryMessage({ messages }: {messages: string[] }) {
+    const corrected = await unirest.post(this.AIServiceUrl + "summary").headers(HEADERS).send({ messages: messages });
     if (corrected.code !== 200) {
       throw new HttpException("The server responded with incorrect status code", 500);
     }
-    return corrected.body.responce;
+    return corrected.body;
+  }
+
+  async createSummaryMessage({ username, presetId }: {username: string, presetId?: string}) {
+    const findMessages = await this.findAllByUsername(username, presetId,false);
+    const explanations = findMessages.filter((it) => it.rating >= 1).map((it) => it.explanation);
+    const result = await this.getSummaryMessage({ messages: explanations })
+    const message = await this.create({
+      username, presetId, text: result.summary, isSummary: true,
+      isResponse: true
+    })
+    return [message]
   }
 
   async createMessageToConversation(createMessageDto: CreateMessageDto): Promise<Message[]> {
     const userMessages = await this.findAllByUsername(createMessageDto.username);
       const messages = userMessages.map((it) => ({ role: it.isResponse ? CHAT_ROLE.ASSISTANT : CHAT_ROLE.USER, content: it.text }))
       messages.push({ role: CHAT_ROLE.USER, content: createMessageDto.text })
-      const response = await this.getResponseMessage(messages);
-      const userMessage = await this.create({ ...createMessageDto, isResponse: false });
-      const responseMessage = await this.create({ username: createMessageDto.username, text: response, isResponse: true });
+      const result = await this.getResponseMessage(messages);
+      const userMessage = await this.create({ ...createMessageDto, correct: result.corrected, explanation: result.explanation, rating: result.rating, isResponse: false });
+      const responseMessage = await this.create({ username: createMessageDto.username, text: result.responce, isResponse: true });
       return [userMessage, responseMessage];
   }
 
   async create(createMessageDto: CreateMessageDto & { isResponse: boolean }): Promise<Message> {
+    const { presetId, ...rest} = createMessageDto;
     return this.prismaService.message.create({data: {
+      ...rest,
+      ...(createMessageDto.presetId && { preset: { connect: { id: createMessageDto.presetId } } }),
       text: createMessageDto.text,
       isResponse: createMessageDto.isResponse,
       user: {
@@ -103,8 +126,11 @@ export class MessageService {
     }});
   }
 
-  async findAllByUsername(username: string) {
-    return this.prismaService.message.findMany({ where: { user: { username } }, orderBy: { createdAt: 'asc' } });
+  async findAllByUsername(username: string, presetId?: string, isResponse?: boolean, isSummary?: boolean) {
+    return this.prismaService.message.findMany({ where: { user: { username }, presetId, ...(typeof isResponse !== 'undefined' && { isResponse }), ...(typeof isSummary !== 'undefined' && { isSummary }) }, orderBy: { createdAt: 'asc' } });
+  }
+  async removeAllMessages(username: string, presetId?: string) {
+    return this.prismaService.message.findMany({ where: { user: { username }, presetId }})
   }
 
   findOne(id: string) {
