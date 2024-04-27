@@ -6,7 +6,9 @@ export class UsernameDto {
   @IsString()
   @ApiProperty()
   username: string;
+}
 
+export class PresetDto extends UsernameDto {
   @IsOptional()
   @IsString()
   @ApiPropertyOptional()

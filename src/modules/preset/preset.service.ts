@@ -43,6 +43,15 @@ export class PresetService {
     }})
   }
 
+  async findAllGroupedByType() {
+    const resultObject = {};
+    await Promise.all(Object.keys(PresetType).map(async (key) => {
+      const presetType = PresetType[key];
+      resultObject[presetType] = await this.getPresetByType(presetType)
+    } ))
+    return resultObject;
+  }
+
   findAll() {
     return this.prismaService.presets.findMany();
   }

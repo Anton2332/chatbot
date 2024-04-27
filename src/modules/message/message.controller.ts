@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
-import { UsernameDto } from './dto/username.dto';
+import { PresetDto, UsernameDto } from './dto/username.dto';
 import { Message } from '@prisma/client';
 import { CorrectDto, ICorrect, MessageDto, TranslateDto } from './types/correct.type';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -31,6 +31,15 @@ export class MessageController {
     return this.messageService.getCorrectMessage(id);
   }
 
+  @Get('summary/:username')
+  @ApiOkResponse({
+    description: 'Summary message response',
+    type: MessageDto,
+    isArray: true
+  })
+  getSummaryByUsername(@Param() dto: UsernameDto): Promise<MessageDto[]>  {
+    return this.messageService.createSummaryMessage({ username: dto.username });
+  }
 
   @Get('summary/:username/:presetId')
   @ApiOkResponse({
@@ -38,7 +47,7 @@ export class MessageController {
     type: MessageDto,
     isArray: true
   })
-  getSummary(@Param() dto: UsernameDto): Promise<MessageDto[]>  {
+  getSummary(@Param() dto: PresetDto): Promise<MessageDto[]>  {
     return this.messageService.createSummaryMessage({ username: dto.username, presetId: dto.presetId });
   }
 
@@ -53,11 +62,22 @@ export class MessageController {
   }
 
   @Delete('end-chat')
-  async endChat(@Query() dto: UsernameDto) {
+  async endChat(@Query() dto: PresetDto) {
     await this.messageService.removeAllMessages(dto.username, dto.presetId);
     return {
       message: "Chat deleted successfully"
     };
+  }
+
+
+  @Get(':username')
+  @ApiOkResponse({
+    description: 'Correct message response',
+    type: MessageDto,
+    isArray: true
+  })
+  findAllByUsername(@Param() param: UsernameDto): Promise<Message[]> {
+    return this.messageService.findAllByUsername(param.username);
   }
 
   @Get(':username/:presetId')
@@ -66,7 +86,7 @@ export class MessageController {
     type: MessageDto,
     isArray: true
   })
-  findAllByUsername(@Param() param: UsernameDto): Promise<Message[]> {
+  findAllByUsernameAndPreset(@Param() param: PresetDto): Promise<Message[]> {
     return this.messageService.findAllByUsername(param.username, param.presetId);
   }
 
