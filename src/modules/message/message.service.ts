@@ -134,7 +134,7 @@ export class MessageService {
     return this.prismaService.message.findMany({ where: { user: { username }, presetId, ...(typeof isResponse !== 'undefined' && { isResponse }), ...(typeof isSummary !== 'undefined' && { isSummary }) }, orderBy: { createdAt: 'asc' } });
   }
   async removeAllMessages(username: string, presetId?: string) {
-    return this.prismaService.message.findMany({ where: { user: { username }, presetId }})
+    return this.prismaService.message.deleteMany({ where: { user: { username }, presetId }})
   }
 
   findOne(id: string) {
