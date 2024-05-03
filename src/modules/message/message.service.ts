@@ -86,55 +86,50 @@ export class MessageService {
     return corrected.body;
   }
 
-  async createSummaryMessage({ username, presetId }: {username: string, presetId?: string}) {
-    const findMessages = await this.findAllByUsername(username, presetId,false);
+  async createSummaryMessage({ userId, presetId }: {userId: string, presetId?: string}) {
+    const findMessages = await this.findAllByUsername(userId, presetId,false);
     const explanations = findMessages.filter((it) => it.rating >= 1).map((it) => it.explanation);
     const result = await this.getSummaryMessage({ messages: explanations })
     const message = await this.create({
-      username, presetId, text: result.summary, isSummary: true,
+      userId, presetId, text: result.summary, isSummary: true,
       isResponse: true
     })
     return [message]
   }
 
-  async createMessageToConversation(createMessageDto: CreateMessageDto): Promise<Message[]> {
-    const userMessages = await this.findAllByUsername(createMessageDto.username);
+  async createMessageToConversation(createMessageDto: CreateMessageDto, userId: string): Promise<Message[]> {
+    const userMessages = await this.findAllByUsername(userId);
       const messages = userMessages.map((it) => ({ role: it.isResponse ? CHAT_ROLE.ASSISTANT : CHAT_ROLE.USER, content: it.text }))
       messages.push({ role: CHAT_ROLE.USER, content: createMessageDto.text })
       const preset = await this.prismaService.presets.findFirst({ where: {
         id: createMessageDto.presetId
       }})
       const result = await this.getResponseMessage(messages, preset?.nameForAiService);
-      const userMessage = await this.create({ ...createMessageDto, correct: result.corrected, explanation: result.explanation, rating: result.rating, isResponse: false });
-      const responseMessage = await this.create({ username: createMessageDto.username, text: result.responce, isResponse: true, presetId: createMessageDto.presetId });
+      const userMessage = await this.create({ ...createMessageDto, userId, correct: result.corrected, explanation: result.explanation, rating: result.rating, isResponse: false });
+      const responseMessage = await this.create({ userId: userId, text: result.responce, isResponse: true, presetId: createMessageDto.presetId });
       return [userMessage, responseMessage];
   }
 
-  async create(createMessageDto: CreateMessageDto & { isResponse: boolean }): Promise<Message> {
-    const { presetId, username, ...rest} = createMessageDto;
+  async create(createMessageDto: CreateMessageDto & { isResponse: boolean; userId: string }): Promise<Message> {
+    const { presetId, userId, ...rest} = createMessageDto;
     return this.prismaService.message.create({data: {
       ...rest,
       ...(createMessageDto.presetId && { preset: { connect: { id: createMessageDto.presetId } } }),
       text: createMessageDto.text,
       isResponse: createMessageDto.isResponse,
       user: {
-        connectOrCreate : {
-          where: {
-            username: createMessageDto.username
-          },
-          create: {
-            username: createMessageDto.username
-          }
+        connect: {
+          id: createMessageDto.userId
         }
       }
     }});
   }
 
-  async findAllByUsername(username: string, presetId?: string, isResponse?: boolean, isSummary?: boolean) {
-    return this.prismaService.message.findMany({ where: { user: { username }, presetId, ...(typeof isResponse !== 'undefined' && { isResponse }), ...(typeof isSummary !== 'undefined' && { isSummary }) }, orderBy: { createdAt: 'asc' } });
+  async findAllByUsername(userId: string, presetId?: string, isResponse?: boolean, isSummary?: boolean) {
+    return this.prismaService.message.findMany({ where: { userId, presetId, ...(typeof isResponse !== 'undefined' && { isResponse }), ...(typeof isSummary !== 'undefined' && { isSummary }) }, orderBy: { createdAt: 'asc' } });
   }
-  async removeAllMessages(username: string, presetId?: string) {
-    return this.prismaService.message.deleteMany({ where: { user: { username }, presetId }})
+  async removeAllMessages(userId: string, presetId?: string) {
+    return this.prismaService.message.deleteMany({ where: { userId, presetId }})
   }
 
   findOne(id: string) {

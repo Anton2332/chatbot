@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -6,8 +6,15 @@ import { PresetDto, UsernameDto } from './dto/username.dto';
 import { Message } from '@prisma/client';
 import { CorrectDto, ICorrect, MessageDto, TranslateDto } from './types/correct.type';
 import { ApiOkResponse } from '@nestjs/swagger';
+import { JWTAuthGuard } from '../common/guards';
+import { AllExceptionFilter, HttpExceptionFilter } from '../common/filters';
+import { User } from '../common/decorators';
+import { IUser } from '../common/types';
 
 @Controller('message')
+@UseFilters(HttpExceptionFilter)
+@UseFilters(AllExceptionFilter)
+@UseGuards(JWTAuthGuard)
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
@@ -31,24 +38,24 @@ export class MessageController {
     return this.messageService.getCorrectMessage(id);
   }
 
-  @Get('summary/:username')
+  @Get('summary')
   @ApiOkResponse({
     description: 'Summary message response',
     type: MessageDto,
     isArray: true
   })
-  getSummaryByUsername(@Param() dto: UsernameDto): Promise<MessageDto[]>  {
-    return this.messageService.createSummaryMessage({ username: dto.username });
+  getSummaryByUsername(@User() user: IUser): Promise<MessageDto[]>  {
+    return this.messageService.createSummaryMessage({ userId: user.id });
   }
 
-  @Get('summary/:username/:presetId')
+  @Get('summary/:presetId')
   @ApiOkResponse({
     description: 'Summary message response',
     type: MessageDto,
     isArray: true
   })
-  getSummary(@Param() dto: PresetDto): Promise<MessageDto[]>  {
-    return this.messageService.createSummaryMessage({ username: dto.username, presetId: dto.presetId });
+  getSummary(@Param() dto: PresetDto, @User() user: IUser): Promise<MessageDto[]>  {
+    return this.messageService.createSummaryMessage({ userId: user.id, presetId: dto.presetId });
   }
 
   @Post()
@@ -57,37 +64,37 @@ export class MessageController {
     type: MessageDto,
     isArray: true
   })
-  create(@Body() createMessageDto: CreateMessageDto): Promise<Message[]> {
-    return this.messageService.createMessageToConversation(createMessageDto);
+  create(@Body() createMessageDto: CreateMessageDto, @User() user: IUser): Promise<Message[]> {
+    return this.messageService.createMessageToConversation(createMessageDto, user.id);
   }
 
   @Delete('end-chat')
-  async endChat(@Query() dto: PresetDto) {
-    await this.messageService.removeAllMessages(dto.username, dto.presetId);
+  async endChat(@Query() dto: PresetDto, @User() user: IUser) {
+    await this.messageService.removeAllMessages(user.id, dto.presetId);
     return {
       message: "Chat deleted successfully"
     };
   }
 
 
-  @Get(':username')
+  @Get()
   @ApiOkResponse({
     description: 'Correct message response',
     type: MessageDto,
     isArray: true
   })
-  findAllByUsername(@Param() param: UsernameDto): Promise<Message[]> {
-    return this.messageService.findAllByUsername(param.username);
+  findAllByUsername(@User() user: IUser): Promise<Message[]> {
+    return this.messageService.findAllByUsername(user.id);
   }
 
-  @Get(':username/:presetId')
+  @Get(':presetId')
   @ApiOkResponse({
     description: 'Correct message response',
     type: MessageDto,
     isArray: true
   })
-  findAllByUsernameAndPreset(@Param() param: PresetDto): Promise<Message[]> {
-    return this.messageService.findAllByUsername(param.username, param.presetId);
+  findAllByUsernameAndPreset(@Param() param: PresetDto, @User() user: IUser): Promise<Message[]> {
+    return this.messageService.findAllByUsername(user.id, param.presetId);
   }
 
   @Patch(':messageId')

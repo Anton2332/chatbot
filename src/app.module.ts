@@ -5,6 +5,7 @@ import { PrismaModule } from './db/prisma.module';
 import { MessageModule } from './modules/message/message.module';
 import { UserModule } from './modules/user/user.module';
 import { PresetModule } from './modules/preset/preset.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { PresetModule } from './modules/preset/preset.module';
     PrismaModule,
     MessageModule,
     UserModule,
-    PresetModule
+    PresetModule,
+    AuthModule
   ]
 })
 export class AppModule {

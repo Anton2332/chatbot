@@ -6,6 +6,4 @@ export interface IJWTPayload {
   id?: string;
   email?: string;
   password?: string;
-  role?: string;
-  birthday?: Date;
 }

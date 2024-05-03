@@ -1,8 +1,6 @@
 export interface IUser {
-  discordId: string;
-  discriminator: string;
-  avatar: string;
-  username: string;
+  id: string;
+  email: string;
 }
 
 export interface AuthServiceProvider {

@@ -2,7 +2,7 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLe
 import { UsernameDto } from "./username.dto";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-export class CreateMessageDto extends UsernameDto {
+export class CreateMessageDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(5)

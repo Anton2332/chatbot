@@ -11,7 +11,7 @@ export class BaseAuthService {
     try {
       const accessToken = this.jwtService.sign(payload, {
         privateKey: process.env.JWT_SECRET,
-        expiresIn: '2h'
+        expiresIn: '2d'
       });
 
       return { token: accessToken };
